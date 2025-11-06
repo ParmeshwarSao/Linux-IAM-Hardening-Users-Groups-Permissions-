@@ -1,0 +1,57 @@
+#Create the groups
+sudo groupadd admin
+sudo groupadd dev
+sudo groupadd auditors
+#Verify the groups were created.
+getent group admin dev auditors
+#Create the Users and Assign Primary Groups.
+sudo useradd -m -s /bin/bash -g admin parmeshwar_admin
+
+sudo useradd -m -s /bin/bash -g dev parmeshwar1_dev
+
+sudo useradd -m -s /bin/bash -g dev parmeshwar2_dev
+
+sudo useradd -m -s /bin/bash -g auditors parmeshwar_auditor
+#Set secure password for the users
+
+sudo passwd (username) : password123
+
+#Veryfy the setup
+
+id parmeshwar_admin
+id parmeshwart1_dev
+id parmeshwar2_dev
+id parmeshwar_auditor
+
+ls -la
+
+#CONFIGURE SUDOERS WITH LEAST PRIVILEGE
+
+#configure the admin group(full sudo access)
+
+sudo visudo
+   # Full admin access for system administrators
+%admin ALL=(ALL:ALL) ALL
+
+#configure the dev group(Restricted commands)
+# Restricted sudo for developers - application management only
+     %dev ALL=(root) /usr/bin/systemctl restart nginx, /usr/bin/systemctl status nginx, /usr/bin/tail -f /var/log/nginx/*.log, /usr/bin/journalctl -u nginx
+
+# Test the sudo configuration
+# Test as parmeshwar_admin (admin) - should have full access: 
+sudo su - parmeshwar_admin
+sudo whoami
+exit
+
+#Test as parmeshwar1_dev (dev) - should have restricted access:
+sudo su - parmeshwar1_dev
+sudo -l
+## Test allowed commands (should work)
+sudo systemctl status ngnix
+sudo systemctl restart ngnix
+## Test denied commands (should FAIL)
+sudo apt update
+sudo whoami
+sudo useradd testuser
+##Exit session
+exit
